@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
   const [name, setName] = useState("");
   const [testimony, setTestimony] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !testimony.trim()) {
       toast({
@@ -20,18 +21,25 @@ const Footer = () => {
       return;
     }
     
-    // Get existing testimonies from localStorage
-    const existingTestimonies = JSON.parse(localStorage.getItem('userTestimonies') || '[]');
-    
-    // Add new testimony
-    const newTestimony = {
-      name: name.trim(),
-      testimony: testimony.trim(),
-      date: new Date().toISOString(),
-    };
-    
-    existingTestimonies.unshift(newTestimony);
-    localStorage.setItem('userTestimonies', JSON.stringify(existingTestimonies));
+    // Save to database
+    const { error } = await supabase
+      .from('testimonies')
+      .insert([
+        {
+          name: name.trim(),
+          testimony: testimony.trim(),
+          approved: true, // Auto-approve for now
+        }
+      ]);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit your testimony. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     toast({
       title: "Testimony Submitted!",

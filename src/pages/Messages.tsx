@@ -1,18 +1,34 @@
+import { useEffect, useState } from "react";
 import { Music } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 import dayOneTakeover from "@/assets/audio/day-1-takeover.mp3";
 
-const messages = [
-  {
-    title: "Day 1 - Take Over Conference",
-    audioUrl: dayOneTakeover,
-    date: "January 2025",
-  },
-];
-
 const Messages = () => {
+  const [messages, setMessages] = useState<Array<{ title: string; audio_url: string; date: string }>>([]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('title, audio_url, date')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        // Map audio URLs to use local imports
+        const messagesWithLocalAudio = data.map(msg => ({
+          ...msg,
+          audio_url: msg.audio_url.includes('day-1-takeover') ? dayOneTakeover : msg.audio_url
+        }));
+        setMessages(messagesWithLocalAudio);
+      }
+    };
+
+    fetchMessages();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -45,7 +61,7 @@ const Messages = () => {
                         className="w-full"
                         preload="metadata"
                       >
-                        <source src={message.audioUrl} type="audio/mpeg" />
+                        <source src={message.audio_url} type="audio/mpeg" />
                         Your browser does not support the audio element.
                       </audio>
                     </div>

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [formData, setFormData] = useState({
@@ -16,11 +17,31 @@ const Index = () => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
       toast({
         title: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Save to database
+    const { error } = await supabase
+      .from('contact_submissions')
+      .insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        }
+      ]);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit your message. Please try again.",
         variant: "destructive",
       });
       return;
@@ -38,7 +59,7 @@ const Index = () => {
     
     toast({
       title: "Message Sent!",
-      description: "Your message is being sent via email and WhatsApp.",
+      description: "Your message has been saved and forwarded.",
     });
     setFormData({ name: "", email: "", message: "" });
   };

@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          audio_url: string
+          created_at: string
+          date: string
+          id: string
+          title: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          date: string
+          id?: string
+          title: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          date?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          question: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          question: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          question?: string
+        }
+        Relationships: []
+      }
+      testimonies: {
+        Row: {
+          approved: boolean
+          created_at: string
+          id: string
+          name: string
+          testimony: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          testimony: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          testimony?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

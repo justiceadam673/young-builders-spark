@@ -3,6 +3,7 @@ import { Quote } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 const testimonies = [
   {
@@ -24,15 +25,46 @@ const testimonies = [
 ];
 
 const Testimonies = () => {
-  const [userTestimonies, setUserTestimonies] = useState<Array<{ name: string; testimony: string; date: string }>>([]);
+  const [dbTestimonies, setDbTestimonies] = useState<Array<{ name: string; testimony: string }>>([]);
 
   useEffect(() => {
-    // Load testimonies from localStorage
-    const stored = JSON.parse(localStorage.getItem('userTestimonies') || '[]');
-    setUserTestimonies(stored);
+    const fetchTestimonies = async () => {
+      const { data, error } = await supabase
+        .from('testimonies')
+        .select('name, testimony')
+        .eq('approved', true)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setDbTestimonies(data);
+      }
+    };
+
+    fetchTestimonies();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('testimonies-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'testimonies',
+          filter: 'approved=eq.true'
+        },
+        () => {
+          fetchTestimonies();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const allTestimonies = [...userTestimonies, ...testimonies];
+  const allTestimonies = [...dbTestimonies, ...testimonies];
 
   return (
     <div className="min-h-screen flex flex-col">
