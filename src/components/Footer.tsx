@@ -20,6 +20,19 @@ const Footer = () => {
       return;
     }
     
+    // Get existing testimonies from localStorage
+    const existingTestimonies = JSON.parse(localStorage.getItem('userTestimonies') || '[]');
+    
+    // Add new testimony
+    const newTestimony = {
+      name: name.trim(),
+      testimony: testimony.trim(),
+      date: new Date().toISOString(),
+    };
+    
+    existingTestimonies.unshift(newTestimony);
+    localStorage.setItem('userTestimonies', JSON.stringify(existingTestimonies));
+    
     toast({
       title: "Testimony Submitted!",
       description: "Thank you for sharing your testimony with us.",

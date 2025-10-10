@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Quote } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,6 +24,16 @@ const testimonies = [
 ];
 
 const Testimonies = () => {
+  const [userTestimonies, setUserTestimonies] = useState<Array<{ name: string; testimony: string; date: string }>>([]);
+
+  useEffect(() => {
+    // Load testimonies from localStorage
+    const stored = JSON.parse(localStorage.getItem('userTestimonies') || '[]');
+    setUserTestimonies(stored);
+  }, []);
+
+  const allTestimonies = [...userTestimonies, ...testimonies];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -38,7 +49,7 @@ const Testimonies = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {testimonies.map((item, index) => (
+            {allTestimonies.map((item, index) => (
               <Card key={index} className="shadow-soft hover:shadow-gold transition-smooth animate-fade-in">
                 <CardContent className="pt-6">
                   <Quote className="w-10 h-10 text-accent mb-4" />

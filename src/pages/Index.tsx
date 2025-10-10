@@ -25,9 +25,20 @@ const Index = () => {
       });
       return;
     }
+
+    const emailSubject = encodeURIComponent(`Contact from ${formData.name}`);
+    const emailBody = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
+    const whatsappMessage = encodeURIComponent(`*Contact Form Submission*\n\nName: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
+    
+    // Open email client
+    window.open(`mailto:justiceadam673@gmail.com?subject=${emailSubject}&body=${emailBody}`, '_blank');
+    
+    // Open WhatsApp
+    window.open(`https://wa.me/2349018281266?text=${whatsappMessage}`, '_blank');
+    
     toast({
       title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon.",
+      description: "Your message is being sent via email and WhatsApp.",
     });
     setFormData({ name: "", email: "", message: "" });
   };
