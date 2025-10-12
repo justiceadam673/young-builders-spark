@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { HelpCircle, Send, MessageCircle } from "lucide-react";
+import { HelpCircle, Send, MessageCircle, Lock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -42,30 +43,22 @@ const QA = () => {
   const [question, setQuestion] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [answeredQuestions, setAnsweredQuestions] = useState<Array<{ question: string; answer: string; name: string }>>([]);
+  const [answeredQuestions, setAnsweredQuestions] = useState<Array<{ id: string; question: string; answer: string; name: string }>>([]);
+  const [unansweredQuestions, setUnansweredQuestions] = useState<Array<{ id: string; question: string; name: string; email: string }>>([]);
+  const [selectedQuestion, setSelectedQuestion] = useState<{ id: string; question: string } | null>(null);
+  const [answerPassword, setAnswerPassword] = useState("");
+  const [answerText, setAnswerText] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const { data, error } = await supabase
-        .from('questions')
-        .select('question, answer, name')
-        .not('answer', 'is', null)
-        .order('created_at', { ascending: false });
-
-      if (!error && data) {
-        setAnsweredQuestions(data);
-      }
-    };
-
     fetchQuestions();
 
-    // Subscribe to realtime updates
     const channel = supabase
       .channel('questions-changes')
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'questions'
         },
@@ -79,6 +72,59 @@ const QA = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const fetchQuestions = async () => {
+    const { data: answered } = await supabase
+      .from('questions')
+      .select('id, question, answer, name')
+      .not('answer', 'is', null)
+      .order('created_at', { ascending: false });
+
+    const { data: unanswered } = await supabase
+      .from('questions')
+      .select('id, question, name, email')
+      .is('answer', null)
+      .order('created_at', { ascending: false });
+
+    if (answered) setAnsweredQuestions(answered);
+    if (unanswered) setUnansweredQuestions(unanswered);
+  };
+
+  const verifyAnswerPassword = async () => {
+    const { data } = await supabase.functions.invoke('verify-admin-password', {
+      body: { password: answerPassword, action: 'qa_answers' }
+    });
+
+    if (data?.valid) {
+      setIsAuthenticated(true);
+      toast({ title: "Access granted" });
+    } else {
+      toast({ title: "Invalid password", variant: "destructive" });
+    }
+  };
+
+  const handleAnswerQuestion = async () => {
+    if (!answerText.trim() || !selectedQuestion) {
+      toast({ title: "Please provide an answer", variant: "destructive" });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('questions')
+      .update({ answer: answerText, answered_at: new Date().toISOString() })
+      .eq('id', selectedQuestion.id);
+
+    if (error) {
+      toast({ title: "Error submitting answer", variant: "destructive" });
+    } else {
+      toast({ title: "Answer submitted successfully" });
+      setSelectedQuestion(null);
+      setAnswerPassword("");
+      setAnswerText("");
+      setIsAuthenticated(false);
+      fetchQuestions();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,6 +233,29 @@ const QA = () => {
             </CardContent>
           </Card>
 
+          {unansweredQuestions.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6">Pending Questions</h2>
+              <div className="space-y-4">
+                {unansweredQuestions.map((q) => (
+                  <Card key={q.id} className="shadow-soft">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-bold mb-2">{q.question}</p>
+                          <p className="text-sm text-muted-foreground">Asked by {q.name}</p>
+                        </div>
+                        <Button onClick={() => setSelectedQuestion({ id: q.id, question: q.question })}>
+                          Answer
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
           {answeredQuestions.length > 0 && (
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -194,8 +263,8 @@ const QA = () => {
                 Community Questions & Answers
               </h2>
               <div className="space-y-4">
-                {answeredQuestions.map((qa, index) => (
-                  <Card key={index} className="shadow-soft">
+                {answeredQuestions.map((qa) => (
+                  <Card key={qa.id} className="shadow-soft">
                     <CardContent className="pt-6">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -213,6 +282,42 @@ const QA = () => {
               </div>
             </div>
           )}
+
+          <Dialog open={!!selectedQuestion} onOpenChange={() => setSelectedQuestion(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Answer Question</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="font-semibold">{selectedQuestion?.question}</p>
+                {!isAuthenticated ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      <span className="text-sm text-muted-foreground">Enter password to answer</span>
+                    </div>
+                    <Input
+                      type="password"
+                      placeholder="Admin Password"
+                      value={answerPassword}
+                      onChange={(e) => setAnswerPassword(e.target.value)}
+                    />
+                    <Button onClick={verifyAnswerPassword} className="w-full">Verify</Button>
+                  </>
+                ) : (
+                  <>
+                    <Textarea
+                      placeholder="Your answer"
+                      rows={4}
+                      value={answerText}
+                      onChange={(e) => setAnswerText(e.target.value)}
+                    />
+                    <Button onClick={handleAnswerQuestion} className="w-full">Submit Answer</Button>
+                  </>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </main>
 

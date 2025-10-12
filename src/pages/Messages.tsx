@@ -1,33 +1,95 @@
 import { useEffect, useState } from "react";
-import { Music } from "lucide-react";
+import { Music, Lock, Plus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import dayOneTakeover from "@/assets/audio/day-1-takeover.mp3";
+import dayTwoFaith from "@/assets/audio/day-2-faith-seminar.mp3";
+import dayThreeGospel from "@/assets/audio/day-3-gospel-seminar.mp3";
 
 const Messages = () => {
   const [messages, setMessages] = useState<Array<{ title: string; audio_url: string; date: string }>>([]);
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [newMessage, setNewMessage] = useState({ title: "", date: "", file: null as File | null });
+
+  const audioMap: Record<string, string> = {
+    'day-1-takeover.mp3': dayOneTakeover,
+    'day-2-faith-seminar.mp3': dayTwoFaith,
+    'day-3-gospel-seminar.mp3': dayThreeGospel,
+  };
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('title, audio_url, date')
-        .order('created_at', { ascending: false });
-
-      if (!error && data) {
-        // Map audio URLs to use local imports
-        const messagesWithLocalAudio = data.map(msg => ({
-          ...msg,
-          audio_url: msg.audio_url.includes('day-1-takeover') ? dayOneTakeover : msg.audio_url
-        }));
-        setMessages(messagesWithLocalAudio);
-      }
-    };
-
     fetchMessages();
   }, []);
+
+  const fetchMessages = async () => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('title, audio_url, date')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      const messagesWithLocalAudio = data.map(msg => ({
+        ...msg,
+        audio_url: audioMap[msg.audio_url] || msg.audio_url
+      }));
+      setMessages(messagesWithLocalAudio);
+    }
+  };
+
+  const verifyPassword = async () => {
+    const { data } = await supabase.functions.invoke('verify-admin-password', {
+      body: { password: adminPassword, action: 'messages_gallery' }
+    });
+
+    if (data?.valid) {
+      setIsAuthenticated(true);
+      toast({ title: "Access granted" });
+    } else {
+      toast({ title: "Invalid password", variant: "destructive" });
+    }
+  };
+
+  const handleAddMessage = async () => {
+    if (!newMessage.title || !newMessage.date || !newMessage.file) {
+      toast({ title: "Please fill all fields", variant: "destructive" });
+      return;
+    }
+
+    // Upload audio file
+    const fileName = `${Date.now()}-${newMessage.file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from('gallery')
+      .upload(fileName, newMessage.file);
+
+    if (uploadError) {
+      toast({ title: "Error uploading file", variant: "destructive" });
+      return;
+    }
+
+    // Insert message record
+    const { error } = await supabase
+      .from('messages')
+      .insert([{ title: newMessage.title, date: newMessage.date, audio_url: fileName }]);
+
+    if (error) {
+      toast({ title: "Error adding message", variant: "destructive" });
+    } else {
+      toast({ title: "Message added successfully" });
+      setNewMessage({ title: "", date: "", file: null });
+      setIsAdminDialogOpen(false);
+      setIsAuthenticated(false);
+      setAdminPassword("");
+      fetchMessages();
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -41,6 +103,56 @@ const Messages = () => {
             <p className="text-lg text-muted-foreground">
               Words of encouragement and wisdom for young builders
             </p>
+          </div>
+
+          <div className="mb-6 flex justify-end">
+            <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Message
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Message</DialogTitle>
+                </DialogHeader>
+                {!isAuthenticated ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      <span className="text-sm text-muted-foreground">Enter password to continue</span>
+                    </div>
+                    <Input
+                      type="password"
+                      placeholder="Admin Password"
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                    />
+                    <Button onClick={verifyPassword} className="w-full">Verify</Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="Message Title"
+                      value={newMessage.title}
+                      onChange={(e) => setNewMessage({ ...newMessage, title: e.target.value })}
+                    />
+                    <Input
+                      type="date"
+                      value={newMessage.date}
+                      onChange={(e) => setNewMessage({ ...newMessage, date: e.target.value })}
+                    />
+                    <Input
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => setNewMessage({ ...newMessage, file: e.target.files?.[0] || null })}
+                    />
+                    <Button onClick={handleAddMessage} className="w-full">Add Message</Button>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="space-y-6">
