@@ -235,6 +235,32 @@ const QA = () => {
 
           {unansweredQuestions.length > 0 && (
             <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <HelpCircle className="w-6 h-6 text-primary" />
+                Pending Questions
+              </h2>
+              <div className="space-y-4">
+                {unansweredQuestions.map((q) => (
+                  <Card key={q.id} className="shadow-soft">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-bold mb-2">{q.question}</p>
+                          <p className="text-sm text-muted-foreground">Asked by {q.name}</p>
+                        </div>
+                        <Button onClick={() => setSelectedQuestion({ id: q.id, question: q.question })}>
+                          Answer
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {answeredQuestions.length > 0 && (
+            <div className="mt-12">
               <h2 className="text-2xl font-bold mb-6">Pending Questions</h2>
               <div className="space-y-4">
                 {unansweredQuestions.map((q) => (
