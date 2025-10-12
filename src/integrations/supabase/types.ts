@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_passwords: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          password_hash: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          password_hash: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          password_hash?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -35,6 +56,27 @@ export type Database = {
           id?: string
           message?: string
           name?: string
+        }
+        Relationships: []
+      }
+      gallery_images: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          title?: string | null
         }
         Relationships: []
       }
