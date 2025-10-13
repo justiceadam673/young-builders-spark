@@ -58,39 +58,83 @@ const Gallery = () => {
     }
   };
 
+  const convertToJpg = async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to convert image'));
+            }
+          }, 'image/jpeg', 0.95);
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleUploadImage = async () => {
     if (!newImage.file) {
       toast({ title: "Please select an image", variant: "destructive" });
       return;
     }
 
-    const fileName = `${Date.now()}-${newImage.file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from('gallery')
-      .upload(fileName, newImage.file);
+    try {
+      // Convert image to jpg
+      const jpgBlob = await convertToJpg(newImage.file);
+      
+      // Create filename with .jpg extension
+      const baseFileName = newImage.file.name.replace(/\.[^/.]+$/, "");
+      const fileName = `${Date.now()}-${baseFileName}.jpg`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('gallery')
+        .upload(fileName, jpgBlob, {
+          contentType: 'image/jpeg'
+        });
 
-    if (uploadError) {
-      toast({ title: "Error uploading image", variant: "destructive" });
-      return;
-    }
+      if (uploadError) {
+        toast({ title: "Error uploading image", variant: "destructive" });
+        return;
+      }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('gallery')
-      .getPublicUrl(fileName);
+      const { data: { publicUrl } } = supabase.storage
+        .from('gallery')
+        .getPublicUrl(fileName);
 
-    const { error } = await supabase
-      .from('gallery_images')
-      .insert([{ image_url: publicUrl, title: newImage.title || null }]);
+      const { error } = await supabase
+        .from('gallery_images')
+        .insert([{ image_url: publicUrl, title: newImage.title || null }]);
 
-    if (error) {
-      toast({ title: "Error saving image", variant: "destructive" });
-    } else {
-      toast({ title: "Image uploaded successfully" });
-      setNewImage({ title: "", file: null });
-      setIsAdminDialogOpen(false);
-      setIsAuthenticated(false);
-      setAdminPassword("");
-      fetchGalleryImages();
+      if (error) {
+        toast({ title: "Error saving image", variant: "destructive" });
+      } else {
+        toast({ title: "Image uploaded successfully as JPG" });
+        setNewImage({ title: "", file: null });
+        setIsAdminDialogOpen(false);
+        setIsAuthenticated(false);
+        setAdminPassword("");
+        fetchGalleryImages();
+      }
+    } catch (error) {
+      console.error('Error converting image:', error);
+      toast({ title: "Error converting image to JPG", variant: "destructive" });
     }
   };
 
