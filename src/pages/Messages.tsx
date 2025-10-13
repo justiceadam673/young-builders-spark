@@ -66,7 +66,7 @@ const Messages = () => {
     // Upload audio file
     const fileName = `${Date.now()}-${newMessage.file.name}`;
     const { error: uploadError } = await supabase.storage
-      .from('gallery')
+      .from('messages')
       .upload(fileName, newMessage.file);
 
     if (uploadError) {
@@ -74,10 +74,15 @@ const Messages = () => {
       return;
     }
 
+    // Get public URL for the uploaded audio
+    const { data: { publicUrl } } = supabase.storage
+      .from('messages')
+      .getPublicUrl(fileName);
+
     // Insert message record
     const { error } = await supabase
       .from('messages')
-      .insert([{ title: newMessage.title, date: newMessage.date, audio_url: fileName }]);
+      .insert([{ title: newMessage.title, date: newMessage.date, audio_url: publicUrl }]);
 
     if (error) {
       toast({ title: "Error adding message", variant: "destructive" });

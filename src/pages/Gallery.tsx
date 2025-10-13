@@ -95,8 +95,8 @@ const Gallery = () => {
   };
 
   const allImages = [
-    ...galleryImages,
-    ...dbImages.map(img => ({ src: img.image_url, alt: img.title || "Gallery image", title: img.title || "Untitled" }))
+    ...dbImages.map(img => ({ src: img.image_url, alt: img.title || "Gallery image", title: img.title || "Untitled" })),
+    ...galleryImages
   ];
 
   return (
