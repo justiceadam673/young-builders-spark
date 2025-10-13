@@ -59,36 +59,55 @@ const Gallery = () => {
   };
 
   const convertToJpg = async (file: File): Promise<Blob> => {
+    // Prefer modern, reliable decoding path
+    try {
+      if ('createImageBitmap' in window) {
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Failed to get canvas context');
+        ctx.drawImage(bitmap, 0, 0);
+        const blob: Blob | null = await new Promise((res) =>
+          canvas.toBlob((b) => res(b), 'image/jpeg', 0.95)
+        );
+        if (!blob) throw new Error('Failed to convert image');
+        return blob;
+      }
+    } catch (e) {
+      // Fallback below
+    }
+
+    // Fallback using object URL + HTMLImageElement
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Failed to get canvas context'));
-            return;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Failed to convert image'));
           }
-          ctx.drawImage(img, 0, 0);
-          canvas.toBlob((blob) => {
-            if (blob) {
-              resolve(blob);
-            } else {
-              reject(new Error('Failed to convert image'));
-            }
-          }, 'image/jpeg', 0.95);
-        };
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = e.target?.result as string;
+        }, 'image/jpeg', 0.95);
+        URL.revokeObjectURL(img.src);
       };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
+      img.onerror = () => {
+        URL.revokeObjectURL(img.src);
+        reject(new Error('Failed to decode image'));
+      };
+      img.src = URL.createObjectURL(file);
     });
   };
-
   const handleUploadImage = async () => {
     if (!newImage.file) {
       toast({ title: "Please select an image", variant: "destructive" });
@@ -96,17 +115,30 @@ const Gallery = () => {
     }
 
     try {
-      // Convert image to jpg
-      const jpgBlob = await convertToJpg(newImage.file);
-      
-      // Create filename with .jpg extension
-      const baseFileName = newImage.file.name.replace(/\.[^/.]+$/, "");
+      const original = newImage.file;
+      const ext = original.name.split('.').pop()?.toLowerCase() || '';
+      const isJpeg = original.type === 'image/jpeg' || ext === 'jpg' || ext === 'jpeg';
+
+      // HEIC/HEIF are not supported by most browsers' canvas decoders
+      if (original.type === 'image/heic' || original.type === 'image/heif') {
+        toast({
+          title: "Unsupported image format",
+          description: "Please upload a JPG, PNG, or WebP image.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const baseFileName = original.name.replace(/\.[^/.]+$/, "");
       const fileName = `${Date.now()}-${baseFileName}.jpg`;
-      
+
+      const blobToUpload = isJpeg ? original : await convertToJpg(original);
+
       const { error: uploadError } = await supabase.storage
         .from('gallery')
-        .upload(fileName, jpgBlob, {
-          contentType: 'image/jpeg'
+        .upload(fileName, blobToUpload, {
+          contentType: 'image/jpeg',
+          upsert: false,
         });
 
       if (uploadError) {
@@ -192,7 +224,7 @@ const Gallery = () => {
                     />
                     <Input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       onChange={(e) => setNewImage({ ...newImage, file: e.target.files?.[0] || null })}
                     />
                     <Button onClick={handleUploadImage} className="w-full">Upload Image</Button>
