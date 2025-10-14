@@ -8,6 +8,8 @@ import Messages from "./pages/Messages";
 import Gallery from "./pages/Gallery";
 import Testimonies from "./pages/Testimonies";
 import QA from "./pages/QA";
+import Blog from "./pages/Blog";
+import AdminQA from "./pages/AdminQA";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/testimonies" element={<Testimonies />} />
           <Route path="/qa" element={<QA />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/admin-qa" element={<AdminQA />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
