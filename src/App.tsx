@@ -10,6 +10,7 @@ import Testimonies from "./pages/Testimonies";
 import QA from "./pages/QA";
 import Blog from "./pages/Blog";
 import AdminQA from "./pages/AdminQA";
+import AdminAnnouncements from "./pages/AdminAnnouncements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/qa" element={<QA />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/admin-qa" element={<AdminQA />} />
+          <Route path="/admin-announcements" element={<AdminAnnouncements />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

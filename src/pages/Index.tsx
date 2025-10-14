@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Send, Heart, Users, Target } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Send, Heart, Users, Target, Megaphone, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroCarousel from "@/components/HeroCarousel";
@@ -16,6 +16,64 @@ const Index = () => {
     email: "",
     message: "",
   });
+  const [announcements, setAnnouncements] = useState<Array<{ id: string; title: string; content: string }>>([]);
+  const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
+
+  useEffect(() => {
+    fetchAnnouncements();
+
+    const channel = supabase
+      .channel('announcements-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'announcements'
+        },
+        () => {
+          fetchAnnouncements();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (announcements.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentAnnouncementIndex((prev) => 
+          prev === announcements.length - 1 ? 0 : prev + 1
+        );
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [announcements.length]);
+
+  const fetchAnnouncements = async () => {
+    const { data } = await supabase
+      .from('announcements')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (data) setAnnouncements(data);
+  };
+
+  const nextAnnouncement = () => {
+    setCurrentAnnouncementIndex((prev) => 
+      prev === announcements.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevAnnouncement = () => {
+    setCurrentAnnouncementIndex((prev) => 
+      prev === 0 ? announcements.length - 1 : prev - 1
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +128,63 @@ const Index = () => {
       
       <main className="flex-1">
         <HeroCarousel />
+
+        {announcements.length > 0 && (
+          <section className="py-12 bg-primary/5">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="relative">
+                <Card className="shadow-soft border-2 border-primary/20">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Megaphone className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xl font-bold mb-2">{announcements[currentAnnouncementIndex].title}</h3>
+                        <p className="text-muted-foreground">{announcements[currentAnnouncementIndex].content}</p>
+                      </div>
+                    </div>
+                    
+                    {announcements.length > 1 && (
+                      <div className="flex items-center justify-between mt-6">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={prevAnnouncement}
+                          className="hover:bg-primary/10"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </Button>
+                        <div className="flex gap-2">
+                          {announcements.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setCurrentAnnouncementIndex(index)}
+                              className={`w-2 h-2 rounded-full transition-all ${
+                                index === currentAnnouncementIndex 
+                                  ? 'bg-primary w-6' 
+                                  : 'bg-primary/30'
+                              }`}
+                              aria-label={`Go to announcement ${index + 1}`}
+                            />
+                          ))}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={nextAnnouncement}
+                          className="hover:bg-primary/10"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="py-20 gradient-light">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
