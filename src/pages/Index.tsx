@@ -243,7 +243,7 @@ const Index = () => {
                   </div>
                   <h3 className='text-xl font-bold mb-2'>GROWTH</h3>
                   <p className='text-muted-foreground'>
-                    We are committed to Growing a Community of Strong Men and
+                    We are Committed to Growing a Community of Strong Men and
                     Women in every aspect and works of Life. From Weakness we
                     raise Strength. From Ashes we raise Cities. From Paupers we
                     Raise Billionaires.(1 Samuel 22:2, 2 Samuel 23:8 )
@@ -259,7 +259,7 @@ const Index = () => {
                   <h3 className='text-xl font-bold mb-2'>GOLD</h3>
                   <p className='text-muted-foreground'>
                     Prosperity is God's will for Every Believer. We are
-                    committed to Raising a Joyful and Prosperous Family in all
+                    Committed to Raising a Joyful and Prosperous Family in all
                     works of Life. (3 John 1:2, Psalms 35:27 )
                   </p>
                 </CardContent>
