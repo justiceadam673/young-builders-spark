@@ -15,6 +15,8 @@ const Navbar = () => {
     { name: "Testimonies", path: "/testimonies" },
     { name: "Q&A", path: "/qa" },
     { name: "Blog", path: "/blog" },
+    { name: "Partner", path: "/partner" },
+    { name: "WhatsApp Group", path: "https://chat.whatsapp.com/DzxsuHOQQpo6II0RK22VN0", external: true },
     { name: "Admin Q&A", path: "/admin-qa" },
     { name: "Admin Announcements", path: "/admin-announcements" },
   ];
@@ -32,14 +34,22 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
-              <Link key={link.path} to={link.path}>
-                <Button
-                  variant={isActive(link.path) ? "default" : "ghost"}
-                  className="transition-smooth"
-                >
-                  {link.name}
-                </Button>
-              </Link>
+              link.external ? (
+                <a key={link.path} href={link.path} target="_blank" rel="noopener noreferrer">
+                  <Button variant="ghost" className="transition-smooth">
+                    {link.name}
+                  </Button>
+                </a>
+              ) : (
+                <Link key={link.path} to={link.path}>
+                  <Button
+                    variant={isActive(link.path) ? "default" : "ghost"}
+                    className="transition-smooth"
+                  >
+                    {link.name}
+                  </Button>
+                </Link>
+              )
             ))}
           </div>
 
@@ -57,14 +67,25 @@ const Navbar = () => {
         <div className="md:hidden border-t animate-fade-in">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
-              <Link key={link.path} to={link.path} onClick={() => setIsOpen(false)}>
-                <Button
-                  variant={isActive(link.path) ? "default" : "ghost"}
-                  className="w-full justify-start transition-smooth"
-                >
-                  {link.name}
-                </Button>
-              </Link>
+              link.external ? (
+                <a key={link.path} href={link.path} target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start transition-smooth"
+                  >
+                    {link.name}
+                  </Button>
+                </a>
+              ) : (
+                <Link key={link.path} to={link.path} onClick={() => setIsOpen(false)}>
+                  <Button
+                    variant={isActive(link.path) ? "default" : "ghost"}
+                    className="w-full justify-start transition-smooth"
+                  >
+                    {link.name}
+                  </Button>
+                </Link>
+              )
             ))}
           </div>
         </div>
