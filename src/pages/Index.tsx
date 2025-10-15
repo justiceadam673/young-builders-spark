@@ -230,7 +230,8 @@ const Index = () => {
                   <h3 className='text-xl font-bold mb-2'>GOSPEL</h3>
                   <p className='text-muted-foreground'>
                     Changing a Generation through the Teaching of the Word of
-                    Faith and the Release of the Supernatural.
+                    Faith and the Release of the Supernatural. ( Romans 1:16-17,
+                    Colossians 1:4-6 )
                   </p>
                 </CardContent>
               </Card>
@@ -245,7 +246,7 @@ const Index = () => {
                     We are committed to Growing a Community of Strong Men and
                     Women in every aspect and works of Life. From Weakness we
                     raise Strength. From Ashes we raise Cities. From Paupers we
-                    Raise Billionaires.
+                    Raise Billionaires.(1 Samuel 22:2, 2 Samuel 23:8 )
                   </p>
                 </CardContent>
               </Card>
@@ -259,7 +260,7 @@ const Index = () => {
                   <p className='text-muted-foreground'>
                     Prosperity is God's will for Every Believer. We are
                     committed to Raising a Joyful and Prosperous Family in all
-                    works of Life.
+                    works of Life. (3 John 1:2, Psalms 35:27 )
                   </p>
                 </CardContent>
               </Card>
