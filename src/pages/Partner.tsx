@@ -248,13 +248,13 @@ const Partner = () => {
                           <p className='text-sm text-muted-foreground'>
                             Account Number
                           </p>
-                          <p className='text-xl font-bold'>9018281266</p>
+                          <p className='text-xl font-bold'>2075219233</p>
                         </div>
                         <Button
                           variant='outline'
                           size='sm'
                           onClick={() =>
-                            copyToClipboard("9018281266", "Account number")
+                            copyToClipboard("2075219233", "Account number")
                           }
                         >
                           <Copy className='h-4 w-4' />
@@ -265,13 +265,18 @@ const Partner = () => {
                           <p className='text-sm text-muted-foreground'>
                             Account Name
                           </p>
-                          <p className='text-lg font-semibold'>Adam Justice</p>
+                          <p className='text-lg font-semibold'>
+                            LUTHER, FAITH RETPLANG
+                          </p>
                         </div>
                         <Button
                           variant='outline'
                           size='sm'
                           onClick={() =>
-                            copyToClipboard("Adam Justice", "Account name")
+                            copyToClipboard(
+                              "LUTHER, FAITH RETPLANG",
+                              "Account name"
+                            )
                           }
                         >
                           <Copy className='h-4 w-4' />
@@ -279,12 +284,14 @@ const Partner = () => {
                       </div>
                       <div>
                         <p className='text-sm text-muted-foreground'>Bank</p>
-                        <p className='text-lg font-semibold'>Opay</p>
+                        <p className='text-lg font-semibold'>
+                          Kuda Microfinance Bank
+                        </p>
                       </div>
                     </div>
                     <Button
                       className='w-full'
-                      onClick={() => handleOpayUssd("opay")}
+                      onClick={() => handleOpayUssd("Kuda Microfinance Bank")}
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? "Saving..." : "I've Made the Transfer"}
@@ -298,13 +305,13 @@ const Partner = () => {
                           <p className='text-sm text-muted-foreground'>
                             Account Number
                           </p>
-                          <p className='text-xl font-bold'>9018281266</p>
+                          <p className='text-xl font-bold'>2075219233</p>
                         </div>
                         <Button
                           variant='outline'
                           size='sm'
                           onClick={() =>
-                            copyToClipboard("9018281266", "Account number")
+                            copyToClipboard("2075219233", "Account number")
                           }
                         >
                           <Copy className='h-4 w-4' />
@@ -315,13 +322,18 @@ const Partner = () => {
                           <p className='text-sm text-muted-foreground'>
                             Account Name
                           </p>
-                          <p className='text-lg font-semibold'>Adam Justice</p>
+                          <p className='text-lg font-semibold'>
+                            LUTHER, FAITH RETPLANG
+                          </p>
                         </div>
                         <Button
                           variant='outline'
                           size='sm'
                           onClick={() =>
-                            copyToClipboard("Adam Justice", "Account name")
+                            copyToClipboard(
+                              "LUTHER, FAITH RETPLANG",
+                              "Account name"
+                            )
                           }
                         >
                           <Copy className='h-4 w-4' />
@@ -329,7 +341,9 @@ const Partner = () => {
                       </div>
                       <div>
                         <p className='text-sm text-muted-foreground'>Bank</p>
-                        <p className='text-lg font-semibold'>Opay</p>
+                        <p className='text-lg font-semibold'>
+                          Kuda Microfinance Bank{" "}
+                        </p>
                       </div>
                       <div className='mt-4 p-4 bg-primary/10 rounded-lg'>
                         <p className='text-sm font-medium mb-2'>
