@@ -15,28 +15,42 @@ const Navbar = () => {
     { name: "Testimonies", path: "/testimonies" },
     { name: "Q&A", path: "/qa" },
     { name: "Blog", path: "/blog" },
-    { name: "Partner", path: "/partner" },
-    { name: "WhatsApp Group", path: "https://chat.whatsapp.com/DzxsuHOQQpo6II0RK22VN0", external: true },
+    { name: "Support", path: "/partner" },
+    {
+      name: "WhatsApp",
+      path: "https://chat.whatsapp.com/DzxsuHOQQpo6II0RK22VN0",
+      external: true,
+    },
     { name: "Admin Q&A", path: "/admin-qa" },
-    { name: "Admin Announcements", path: "/admin-announcements" },
+    { name: "Admin News", path: "/admin-announcements" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-soft">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-smooth">
-            <img src={logo} alt="YBF Logo" className="h-10 w-auto" />
-            <span className="font-bold text-lg text-primary hidden sm:block">YBF International</span>
+    <nav className='sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b shadow-soft'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <div className='flex justify-between items-center h-16'>
+          <Link
+            to='/'
+            className='flex items-center gap-3 hover:opacity-80 transition-smooth'
+          >
+            <img src={logo} alt='YBF Logo' className='h-10 w-auto' />
+            <span className='font-bold text-lg text-primary hidden sm:block'>
+              YBFI
+            </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+          <div className='hidden md:flex items-center gap-1'>
+            {navLinks.map((link) =>
               link.external ? (
-                <a key={link.path} href={link.path} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" className="transition-smooth">
+                <a
+                  key={link.path}
+                  href={link.path}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
+                  <Button variant='ghost' className='transition-smooth'>
                     {link.name}
                   </Button>
                 </a>
@@ -44,49 +58,59 @@ const Navbar = () => {
                 <Link key={link.path} to={link.path}>
                   <Button
                     variant={isActive(link.path) ? "default" : "ghost"}
-                    className="transition-smooth"
+                    className='transition-smooth'
                   >
                     {link.name}
                   </Button>
                 </Link>
               )
-            ))}
+            )}
           </div>
 
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-smooth"
+            className='md:hidden p-2 rounded-lg hover:bg-muted transition-smooth'
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
+            aria-label='Toggle menu'
           >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isOpen ? <X className='h-6 w-6' /> : <Menu className='h-6 w-6' />}
           </button>
         </div>
       </div>
 
       {isOpen && (
-        <div className="md:hidden border-t animate-fade-in">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {navLinks.map((link) => (
+        <div className='md:hidden border-t animate-fade-in'>
+          <div className='px-2 pt-2 pb-3 space-y-1'>
+            {navLinks.map((link) =>
               link.external ? (
-                <a key={link.path} href={link.path} target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)}>
+                <a
+                  key={link.path}
+                  href={link.path}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  onClick={() => setIsOpen(false)}
+                >
                   <Button
-                    variant="ghost"
-                    className="w-full justify-start transition-smooth"
+                    variant='ghost'
+                    className='w-full justify-start transition-smooth'
                   >
                     {link.name}
                   </Button>
                 </a>
               ) : (
-                <Link key={link.path} to={link.path} onClick={() => setIsOpen(false)}>
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                >
                   <Button
                     variant={isActive(link.path) ? "default" : "ghost"}
-                    className="w-full justify-start transition-smooth"
+                    className='w-full justify-start transition-smooth'
                   >
                     {link.name}
                   </Button>
                 </Link>
               )
-            ))}
+            )}
           </div>
         </div>
       )}
