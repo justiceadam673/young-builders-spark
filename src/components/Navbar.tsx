@@ -16,13 +16,13 @@ const Navbar = () => {
     { name: "Q&A", path: "/qa" },
     { name: "Blog", path: "/blog" },
     { name: "Support", path: "/partner" },
+    { name: "Admin Q&A", path: "/admin-qa" },
+    { name: "Admin News", path: "/admin-announcements" },
     {
       name: "WhatsApp",
       path: "https://chat.whatsapp.com/DzxsuHOQQpo6II0RK22VN0",
       external: true,
     },
-    { name: "Admin Q&A", path: "/admin-qa" },
-    { name: "Admin News", path: "/admin-announcements" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
