@@ -7,10 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Download, BookOpen, Upload } from "lucide-react";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface Book {
   id: string;
@@ -33,6 +38,8 @@ const Books = () => {
   const [bookFile, setBookFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>("");
   const [readingBook, setReadingBook] = useState<Book | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [pageNumber, setPageNumber] = useState(1);
   const queryClient = useQueryClient();
 
   const { data: books, isLoading } = useQuery({
@@ -302,17 +309,54 @@ const Books = () => {
       </main>
       <Footer />
       
-      <Dialog open={!!readingBook} onOpenChange={() => setReadingBook(null)}>
-        <DialogContent className="max-w-6xl h-[90vh] p-0">
-          <DialogHeader className="px-6 py-4">
+      <Dialog open={!!readingBook} onOpenChange={() => {
+        setReadingBook(null);
+        setPageNumber(1);
+        setNumPages(null);
+      }}>
+        <DialogContent className="max-w-6xl h-[90vh] flex flex-col">
+          <DialogHeader>
             <DialogTitle>{readingBook?.title}</DialogTitle>
+            <DialogDescription>
+              Read the book online
+            </DialogDescription>
           </DialogHeader>
           {readingBook && (
-            <iframe
-              src={readingBook.file_url}
-              className="w-full h-full border-0"
-              title={readingBook.title}
-            />
+            <div className="flex-1 overflow-auto flex flex-col items-center">
+              <Document
+                file={readingBook.file_url}
+                onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                className="flex flex-col items-center"
+              >
+                <Page 
+                  pageNumber={pageNumber} 
+                  renderTextLayer={true}
+                  renderAnnotationLayer={true}
+                  className="max-w-full"
+                />
+              </Document>
+              {numPages && (
+                <div className="flex items-center gap-4 mt-4 sticky bottom-0 bg-background p-4 border-t">
+                  <Button
+                    onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
+                    disabled={pageNumber <= 1}
+                    variant="outline"
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm">
+                    Page {pageNumber} of {numPages}
+                  </span>
+                  <Button
+                    onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
+                    disabled={pageNumber >= numPages}
+                    variant="outline"
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
