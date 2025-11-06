@@ -10,6 +10,7 @@ import Testimonies from "./pages/Testimonies";
 import QA from "./pages/QA";
 import Blog from "./pages/Blog";
 import Partner from "./pages/Partner";
+import Books from "./pages/Books";
 import AdminQA from "./pages/AdminQA";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/qa" element={<QA />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/partner" element={<Partner />} />
+          <Route path="/books" element={<Books />} />
           <Route path="/admin-qa" element={<AdminQA />} />
           <Route path="/admin-announcements" element={<AdminAnnouncements />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
