@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Download, BookOpen, Upload } from "lucide-react";
+import { Download, BookOpen, Upload, MessageSquare, Star } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -40,6 +40,10 @@ const Books = () => {
   const [readingBook, setReadingBook] = useState<Book | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [reviewingBook, setReviewingBook] = useState<Book | null>(null);
+  const [reviewName, setReviewName] = useState("");
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
   const queryClient = useQueryClient();
 
   const { data: books, isLoading } = useQuery({
@@ -53,6 +57,22 @@ const Books = () => {
       if (error) throw error;
       return data as Book[];
     },
+  });
+
+  const { data: reviews } = useQuery({
+    queryKey: ["reviews", reviewingBook?.id],
+    queryFn: async () => {
+      if (!reviewingBook) return [];
+      const { data, error } = await supabase
+        .from("book_reviews")
+        .select("*")
+        .eq("book_id", reviewingBook.id)
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!reviewingBook,
   });
 
   const uploadMutation = useMutation({
@@ -113,6 +133,33 @@ const Books = () => {
     },
     onError: (error) => {
       toast.error("Failed to upload book: " + error.message);
+    },
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: async () => {
+      if (!reviewingBook || !reviewName || !reviewText) {
+        throw new Error("Please fill in all fields");
+      }
+
+      const { error } = await supabase.from("book_reviews").insert({
+        book_id: reviewingBook.id,
+        user_name: reviewName,
+        review: reviewText,
+        rating: reviewRating,
+      });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Review submitted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["reviews", reviewingBook?.id] });
+      setReviewName("");
+      setReviewText("");
+      setReviewRating(5);
+    },
+    onError: (error) => {
+      toast.error("Failed to submit review: " + error.message);
     },
   });
 
@@ -275,9 +322,6 @@ const Books = () => {
                   <CardDescription>by {book.author}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {book.description && (
-                    <p className="text-sm text-muted-foreground mb-4">{book.description}</p>
-                  )}
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -295,6 +339,15 @@ const Books = () => {
                     >
                       <BookOpen className="mr-2 h-4 w-4" />
                       Read
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setReviewingBook(book)}
+                      className="flex-1"
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Reviews
                     </Button>
                   </div>
                 </CardContent>
@@ -358,6 +411,115 @@ const Books = () => {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!reviewingBook} onOpenChange={() => {
+        setReviewingBook(null);
+        setReviewName("");
+        setReviewText("");
+        setReviewRating(5);
+      }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Reviews for {reviewingBook?.title}</DialogTitle>
+            <DialogDescription>
+              Read what others think and share your own review
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Add Review Form */}
+            <div className="border rounded-lg p-4 space-y-4">
+              <h3 className="font-semibold">Write a Review</h3>
+              <div>
+                <Label htmlFor="reviewName">Your Name</Label>
+                <Input
+                  id="reviewName"
+                  value={reviewName}
+                  onChange={(e) => setReviewName(e.target.value)}
+                  placeholder="Enter your name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="rating">Rating</Label>
+                <div className="flex gap-1 items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="focus:outline-none"
+                    >
+                      <Star
+                        className={`h-6 w-6 ${
+                          star <= reviewRating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {reviewRating} star{reviewRating !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="reviewText">Your Review</Label>
+                <Textarea
+                  id="reviewText"
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Share your thoughts about this book..."
+                  rows={4}
+                />
+              </div>
+              <Button
+                onClick={() => reviewMutation.mutate()}
+                disabled={reviewMutation.isPending || !reviewName || !reviewText}
+                className="w-full"
+              >
+                {reviewMutation.isPending ? "Submitting..." : "Submit Review"}
+              </Button>
+            </div>
+
+            {/* Display Reviews */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">
+                All Reviews {reviews && reviews.length > 0 && `(${reviews.length})`}
+              </h3>
+              {reviews && reviews.length > 0 ? (
+                reviews.map((review: any) => (
+                  <div key={review.id} className="border rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{review.user_name}</span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`h-4 w-4 ${
+                              star <= review.rating
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm">{review.review}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No reviews yet. Be the first to review this book!
+                </p>
+              )}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

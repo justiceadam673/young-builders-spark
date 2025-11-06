@@ -115,6 +115,41 @@ export type Database = {
         }
         Relationships: []
       }
+      book_reviews: {
+        Row: {
+          book_id: string
+          created_at: string
+          id: string
+          rating: number | null
+          review: string
+          user_name: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          id?: string
+          rating?: number | null
+          review: string
+          user_name: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          id?: string
+          rating?: number | null
+          review?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_reviews_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       books: {
         Row: {
           author: string
