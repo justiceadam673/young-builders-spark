@@ -32,6 +32,7 @@ const Books = () => {
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [bookFile, setBookFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>("");
+  const [readingBook, setReadingBook] = useState<Book | null>(null);
   const queryClient = useQueryClient();
 
   const { data: books, isLoading } = useQuery({
@@ -282,7 +283,7 @@ const Books = () => {
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => window.open(book.file_url, "_blank")}
+                      onClick={() => setReadingBook(book)}
                       className="flex-1"
                     >
                       <BookOpen className="mr-2 h-4 w-4" />
@@ -300,6 +301,21 @@ const Books = () => {
         )}
       </main>
       <Footer />
+      
+      <Dialog open={!!readingBook} onOpenChange={() => setReadingBook(null)}>
+        <DialogContent className="max-w-6xl h-[90vh] p-0">
+          <DialogHeader className="px-6 py-4">
+            <DialogTitle>{readingBook?.title}</DialogTitle>
+          </DialogHeader>
+          {readingBook && (
+            <iframe
+              src={readingBook.file_url}
+              className="w-full h-full border-0"
+              title={readingBook.title}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
