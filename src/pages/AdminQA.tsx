@@ -102,11 +102,11 @@ const AdminQA = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-8 mt-20">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20">
         <h1 className="text-4xl font-bold mb-8">Q&A Administration</h1>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Pending Questions ({unansweredQuestions.length})</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">Pending Questions ({unansweredQuestions.length})</h2>
           <div className="space-y-4">
             {unansweredQuestions.map((q) => (
               <Card key={q.id}>
@@ -125,7 +125,7 @@ const AdminQA = () => {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">Answered Questions ({answeredQuestions.length})</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">Answered Questions ({answeredQuestions.length})</h2>
           <div className="space-y-4">
             {answeredQuestions.map((q) => (
               <Card key={q.id}>
@@ -172,6 +172,7 @@ const AdminQA = () => {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAnswerQuestion()}
                 />
                 <Button onClick={handleAnswerQuestion} className="w-full">
                   Submit Answer

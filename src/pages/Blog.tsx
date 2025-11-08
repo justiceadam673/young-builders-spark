@@ -249,9 +249,9 @@ const Blog = () => {
   return (
     <div className='min-h-screen bg-background'>
       <Navbar />
-      <main className='container mx-auto px-4 py-8 mt-20'>
-        <div className='flex justify-between items-center mb-8'>
-          <h1 className='text-4xl font-bold'>Blog</h1>
+      <main className='container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20'>
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8'>
+          <h1 className='text-3xl sm:text-4xl font-bold'>Blog</h1>
           <Dialog
             open={isCreateDialogOpen}
             onOpenChange={setIsCreateDialogOpen}
@@ -259,7 +259,7 @@ const Blog = () => {
             <DialogTrigger asChild>
               <Button>Create Post</Button>
             </DialogTrigger>
-            <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
+            <DialogContent className='max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto'>
               <DialogHeader>
                 <DialogTitle>Create New Post</DialogTitle>
               </DialogHeader>
@@ -301,6 +301,7 @@ const Blog = () => {
                   placeholder='Enter password'
                   value={createPassword}
                   onChange={(e) => setCreatePassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleCreatePost()}
                 />
                 <Button onClick={handleCreatePost} className='w-full'>
                   Create Post
@@ -372,7 +373,7 @@ const Blog = () => {
             </Card>
           </div>
         ) : (
-          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'>
             {posts.map((post) => (
               <Card
                 key={post.id}

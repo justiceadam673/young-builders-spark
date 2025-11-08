@@ -65,7 +65,7 @@ const Testimonies = () => {
             </p>
           </div>
 
-          <div className='grid md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             {allTestimonies.map((item, index) => (
               <Card
                 key={index}

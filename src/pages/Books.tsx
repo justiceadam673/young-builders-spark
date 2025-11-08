@@ -33,7 +33,6 @@ const Books = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const [description, setDescription] = useState("");
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [bookFile, setBookFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string>("");
@@ -111,7 +110,7 @@ const Books = () => {
       const { error: dbError } = await supabase.from("books").insert({
         title,
         author,
-        description,
+        description: "",
         cover_image_url: coverUrl,
         file_url: fileUrl,
       });
@@ -124,7 +123,6 @@ const Books = () => {
       setIsUploadOpen(false);
       setTitle("");
       setAuthor("");
-      setDescription("");
       setCoverImage(null);
       setBookFile(null);
       setCoverPreview("");
@@ -231,6 +229,7 @@ const Books = () => {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handlePasswordCheck()}
                       placeholder="Enter password to upload"
                     />
                   </div>
@@ -256,16 +255,6 @@ const Books = () => {
                       value={author}
                       onChange={(e) => setAuthor(e.target.value)}
                       placeholder="Enter author name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Enter book description"
-                      rows={3}
                     />
                   </div>
                   <div>
@@ -309,7 +298,7 @@ const Books = () => {
         {isLoading ? (
           <div className="text-center py-8">Loading books...</div>
         ) : books && books.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {books.map((book) => (
               <Card key={book.id} className="overflow-hidden">
                 <img
@@ -322,7 +311,7 @@ const Books = () => {
                   <CardDescription>by {book.author}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -340,16 +329,16 @@ const Books = () => {
                       <BookOpen className="mr-2 h-4 w-4" />
                       Read
                     </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setReviewingBook(book)}
-                      className="flex-1"
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Reviews
-                    </Button>
                   </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setReviewingBook(book)}
+                    className="w-full mt-2"
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Reviews
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -367,7 +356,7 @@ const Books = () => {
         setPageNumber(1);
         setNumPages(null);
       }}>
-        <DialogContent className="max-w-6xl h-[90vh] flex flex-col">
+        <DialogContent className="max-w-full sm:max-w-6xl h-[90vh] flex flex-col p-2 sm:p-6">
           <DialogHeader>
             <DialogTitle>{readingBook?.title}</DialogTitle>
             <DialogDescription>

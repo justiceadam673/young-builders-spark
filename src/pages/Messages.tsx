@@ -159,6 +159,7 @@ const Messages = () => {
                       placeholder='Admin Password'
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && verifyPassword()}
                     />
                     <Button onClick={verifyPassword} className='w-full'>
                       Verify
@@ -210,13 +211,13 @@ const Messages = () => {
                     <div className='w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0'>
                       <Music className='w-6 h-6 text-primary' />
                     </div>
-                    <div className='flex-1'>
-                      <div className='flex justify-between items-start mb-4'>
-                        <h3 className='text-xl font-bold'>{message.title}</h3>
-                        <span className='text-sm text-muted-foreground'>
-                          {message.date}
-                        </span>
-                      </div>
+                  <div className='flex-1 min-w-0'>
+                    <div className='flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-4'>
+                      <h3 className='text-lg sm:text-xl font-bold'>{message.title}</h3>
+                      <span className='text-sm text-muted-foreground whitespace-nowrap'>
+                        {message.date}
+                      </span>
+                    </div>
                       <audio controls className='w-full' preload='metadata'>
                         <source src={message.audio_url} type='audio/mpeg' />
                         Your browser does not support the audio element.
