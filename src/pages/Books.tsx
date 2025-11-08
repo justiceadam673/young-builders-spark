@@ -341,7 +341,7 @@ const Books = () => {
                       variant='outline'
                       size='sm'
                       onClick={() => handleDownload(book.file_url, book.title)}
-                      className='flex-1'
+                      className='flex-1 max-md:py-2 '
                     >
                       <Download className='mr-2 h-4 w-4' />
                       Download
