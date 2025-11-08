@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logo from "@/assets/ybf-logo.jpeg";
 
 const Navbar = () => {
@@ -43,29 +49,105 @@ const Navbar = () => {
           </Link>
 
           <div className='hidden md:flex items-center gap-1'>
-            {navLinks.map((link) =>
-              link.external ? (
-                <a
-                  key={link.path}
-                  href={link.path}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                >
-                  <Button variant='ghost' className='transition-smooth'>
-                    {link.name}
-                  </Button>
-                </a>
-              ) : (
-                <Link key={link.path} to={link.path}>
-                  <Button
-                    variant={isActive(link.path) ? "default" : "ghost"}
-                    className='transition-smooth'
-                  >
-                    {link.name}
-                  </Button>
-                </Link>
-              )
-            )}
+            <Link to='/'>
+              <Button
+                variant={isActive("/") ? "default" : "ghost"}
+                className='transition-smooth'
+              >
+                Home
+              </Button>
+            </Link>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='ghost' className='transition-smooth'>
+                  Growth <ChevronDown className='ml-1 h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='bg-background border shadow-lg'>
+                <DropdownMenuItem asChild>
+                  <Link to='/messages' className='w-full cursor-pointer'>
+                    Messages
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to='/books' className='w-full cursor-pointer'>
+                    Books
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to='/blog' className='w-full cursor-pointer'>
+                    Blog
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link to='/gallery'>
+              <Button
+                variant={isActive("/gallery") ? "default" : "ghost"}
+                className='transition-smooth'
+              >
+                Gallery
+              </Button>
+            </Link>
+
+            <Link to='/testimonies'>
+              <Button
+                variant={isActive("/testimonies") ? "default" : "ghost"}
+                className='transition-smooth'
+              >
+                Testimonies
+              </Button>
+            </Link>
+
+            <Link to='/qa'>
+              <Button
+                variant={isActive("/qa") ? "default" : "ghost"}
+                className='transition-smooth'
+              >
+                Q&A
+              </Button>
+            </Link>
+
+            <Link to='/partner'>
+              <Button
+                variant={isActive("/partner") ? "default" : "ghost"}
+                className='transition-smooth'
+              >
+                Support
+              </Button>
+            </Link>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='ghost' className='transition-smooth'>
+                  Admin <ChevronDown className='ml-1 h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='bg-background border shadow-lg'>
+                <DropdownMenuItem asChild>
+                  <Link to='/admin-qa' className='w-full cursor-pointer'>
+                    Admin Q&A
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to='/admin-announcements' className='w-full cursor-pointer'>
+                    Admin News
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <a
+              href='https://chat.whatsapp.com/DzxsuHOQQpo6II0RK22VN0'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              <Button variant='ghost' className='transition-smooth'>
+                WhatsApp
+              </Button>
+            </a>
           </div>
 
           <button
