@@ -48,11 +48,11 @@ const Navbar = () => {
             </span>
           </Link>
 
-          <div className='hidden md:flex items-center gap-0.5 lg:gap-1'>
+          <div className='hidden lg:flex items-center gap-1'>
             <Link to='/'>
               <Button
                 variant={isActive("/") ? "default" : "ghost"}
-                className='transition-smooth text-xs md:text-sm px-2 md:px-4'
+                className='transition-smooth'
               >
                 Home
               </Button>
@@ -60,8 +60,8 @@ const Navbar = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='transition-smooth text-xs md:text-sm px-2 md:px-4'>
-                  Growth <ChevronDown className='ml-1 h-3 w-3 md:h-4 md:w-4' />
+                <Button variant='ghost' className='transition-smooth'>
+                  Growth <ChevronDown className='ml-1 h-4 w-4' />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className='bg-background border shadow-lg'>
@@ -86,7 +86,7 @@ const Navbar = () => {
             <Link to='/gallery'>
               <Button
                 variant={isActive("/gallery") ? "default" : "ghost"}
-                className='transition-smooth text-xs md:text-sm px-2 md:px-4'
+                className='transition-smooth'
               >
                 Gallery
               </Button>
@@ -95,7 +95,7 @@ const Navbar = () => {
             <Link to='/testimonies'>
               <Button
                 variant={isActive("/testimonies") ? "default" : "ghost"}
-                className='transition-smooth text-xs md:text-sm px-2 md:px-4'
+                className='transition-smooth'
               >
                 Testimonies
               </Button>
@@ -104,7 +104,7 @@ const Navbar = () => {
             <Link to='/qa'>
               <Button
                 variant={isActive("/qa") ? "default" : "ghost"}
-                className='transition-smooth text-xs md:text-sm px-2 md:px-4'
+                className='transition-smooth'
               >
                 Q&A
               </Button>
@@ -113,7 +113,7 @@ const Navbar = () => {
             <Link to='/partner'>
               <Button
                 variant={isActive("/partner") ? "default" : "ghost"}
-                className='transition-smooth text-xs md:text-sm px-2 md:px-4'
+                className='transition-smooth'
               >
                 Support
               </Button>
@@ -121,8 +121,8 @@ const Navbar = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='transition-smooth text-xs md:text-sm px-2 md:px-4'>
-                  Admin <ChevronDown className='ml-1 h-3 w-3 md:h-4 md:w-4' />
+                <Button variant='ghost' className='transition-smooth'>
+                  Admin <ChevronDown className='ml-1 h-4 w-4' />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className='bg-background border shadow-lg'>
@@ -144,14 +144,14 @@ const Navbar = () => {
               target='_blank'
               rel='noopener noreferrer'
             >
-              <Button variant='ghost' className='transition-smooth text-xs md:text-sm px-2 md:px-4'>
+              <Button variant='ghost' className='transition-smooth'>
                 WhatsApp
               </Button>
             </a>
           </div>
 
           <button
-            className='md:hidden p-2 rounded-lg hover:bg-muted transition-smooth'
+            className='lg:hidden p-2 rounded-lg hover:bg-muted transition-smooth'
             onClick={() => setIsOpen(!isOpen)}
             aria-label='Toggle menu'
           >
@@ -161,7 +161,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className='md:hidden border-t animate-fade-in'>
+        <div className='lg:hidden border-t animate-fade-in'>
           <div className='px-2 pt-2 pb-3 space-y-1'>
             {navLinks.map((link) =>
               link.external ? (
